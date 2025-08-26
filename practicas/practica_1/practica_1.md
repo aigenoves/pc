@@ -47,7 +47,7 @@
             10- Store Reg Acum, Pos Mem x
     ```
 
-    > a: 56 Si con la historia P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.1, P3.2, P3.3, P3.4, P3.5, P3.6, P3.7, P3.8, P3.9, P3.10
+    >a: 56 Si con la historia P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.1, P3.2, P3.3, P3.4, P3.5, P3.6, P3.7, P3.8, P3.9, P3.10
     >b: 22 Si con la historia P3.1, P3.2, P3.3, P1.1, P1.2, P1.3,P3.4, P3.5, P3.6, P3.7, P3.8, P3.9, P3.10, P2.1, P2.2, P2.3
     >c: 23 Si con la historia P3.1, P3.2, P3.3, P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.4, P3.5, P3.6, P3.7, P3.8, P3.9, P3.10
 
@@ -64,3 +64,80 @@
         }
     }
     ```
+
+3. Dada la siguiente solución de grano grueso:  
+
+    a) Indicar si el siguiente código funciona para resolver el problema de Productor/Consumidor  con  un  buffer  de  tamaño  N.  En  caso  de  no  funcionar,  debe hacer las modificaciones necesarias.
+
+    ```plaintext
+    int cant = 0;
+    int pri_ocupada = 0;
+    int pri_vacia = 0;
+    int buffer[N];
+    Process Productor::  
+    { while (true) 
+        { produce elemento 
+            <await (cant < N); cant++> 
+            buffer[pri_vacia] = elemento; 
+            pri_vacia = (pri_vacia + 1) mod N; 
+        } 
+    } 
+    Process Consumidor::  
+    { while (true) 
+        { <await (cant > 0); cant-- > 
+            elemento = buffer[pri_ocupada]; 
+            pri_ocupada = (pri_ocupada + 1) mod N; 
+            consume elemento 
+        } 
+    }
+    ```
+
+    Modificación:
+
+    ```plaintext
+    int cant = 0;
+    int pri_ocupada = 0;
+    int pri_vacia = 0;
+    int buffer[N];
+    Process Productor[i:0..P-1]::  
+    { while (true) 
+        { produce elemento 
+            <await (cant < N); cant++ 
+            buffer[pri_vacia] = elemento;>
+            pri_vacia = (pri_vacia + 1) mod N; 
+        } 
+    } 
+    Process Consumidor[i:0..C-1]::  
+    { while (true) 
+        { <await (cant > 0); cant-- 
+            elemento = buffer[pri_ocupada];>
+            pri_ocupada = (pri_ocupada + 1) mod N; 
+            consume elemento 
+        } 
+    }
+    ```
+
+    b) Modificar el código para que funcione para C consumidores y P productores.
+
+    ```plaintext
+        int cant = 0;
+        int pri_ocupada = 0;
+        int pri_vacia = 0;
+        int buffer[N];
+        Process Productor[i:0..P-1]::  
+        { while (true) 
+            { produce elemento 
+                <await (cant < N); cant++ 
+                buffer[pri_vacia] = elemento;
+                pri_vacia = (pri_vacia + 1) mod N;>
+            } 
+        } 
+        Process Consumidor[i:0..C-1]::  
+        { while (true) 
+            { <await (cant > 0); cant-- 
+                elemento = buffer[pri_ocupada];
+                pri_ocupada = (pri_ocupada + 1) mod N>
+                consume elemento 
+            } 
+        }
+        ```
