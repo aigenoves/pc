@@ -4,13 +4,13 @@
 
 1. Para el siguiente programa concurrente suponga que todas las variables están inicializadas en 0 antes de empezar. Indique cual/es de las siguientes opciones son verdaderas:
 
-    a) En algún caso el valor de x al terminar el programa es 56.
+    a) En algún caso el valor de x al terminar el programa es 56. [✓]
 
-    b) En algún caso el valor de x al terminar el programa es 22.
+    b) En algún caso el valor de x al terminar el programa es 22. [✓]
 
-    c) En algún caso el valor de x al terminar el programa es 23.
+    c) En algún caso el valor de x al terminar el programa es 23. [✓]
 
-    ```plaintext
+    ```java
     P1::
     if (x = 0) then
         y:= 4 * 2
@@ -20,7 +20,7 @@
             3- Store Reg Acum, Pos Mem x
     ```
 
-    ```plaintext
+    ```java
     P2::
     if (x>0) then
         x:= x + 1
@@ -29,7 +29,7 @@
             3- Store Reg Acum, Pos Mem x
     ```
 
-    ```plaintext
+    ```java
     P3::
     x:= (x*3) + (x*2) + 1
             (x*3)
@@ -47,13 +47,13 @@
             10- Store Reg Acum, Pos Mem x
     ```
 
-    >a: 56 Si con la historia P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.1, P3.2, P3.3, P3.4, P3.5, P3.6, P3.7, P3.8, P3.9, P3.10
-    >b: 22 Si con la historia P3.1, P3.2, P3.3, P1.1, P1.2, P1.3,P3.4, P3.5, P3.6, P3.7, P3.8, P3.9, P3.10, P2.1, P2.2, P2.3
-    >c: 23 Si con la historia P3.1, P3.2, P3.3, P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.4, P3.5, P3.6, P3.7, P3.8, P3.9, P3.10
+    >a: 56 Si con la historia P1~1~, P1~2~, P1~3~, P2~1~, P2~2~, P2~3~, P3~1~, P3~2~, P3~3~, P3~4~, P3~5~, P3~6~, P3~7~, P3~8~, P3~9~, P3~10~
+    >b: 22 Si con la historia P3~1~, P3~2~, P3~3~, P1~1~, P1~2~, P1~3~,P3~4~, P3~5~, P3~6~, P3~7~, P3~8~, P3~9~, P3~10~, P2~1~, P2~2~, P2~3~
+    >c: 23 Si con la historia P3~1~, P3~2~, P3~3~, P1~1~, P1~2~, P1~3~, P2~1~, P2~2~, P2~3~, P3~4~, P3~5~, P3~6~, P3~7~, P3~8~, P3~9~, P3~10~
 
 2. Realice una solución concurrente de grano grueso (utilizando <> y/o <await B; S>) para el siguiente problema. Dado un número N verifique cuántas veces aparece ese número en un arreglo de longitud M. Escriba las pre-condiciones que considere necesarias.
 
-    ```plaintext
+    ```java
     integer N
     integer x := 0
     arreglo [M]
@@ -69,7 +69,7 @@
 
     a) Indicar si el siguiente código funciona para resolver el problema de Productor/Consumidor  con  un  buffer  de  tamaño  N.  En  caso  de  no  funcionar,  debe hacer las modificaciones necesarias.
 
-    ```plaintext
+    ```java
     int cant = 0;
     int pri_ocupada = 0;
     int pri_vacia = 0;
@@ -94,7 +94,7 @@
 
     Modificación:
 
-    ```plaintext
+    ```java
     int cant = 0;
     int pri_ocupada = 0;
     int pri_vacia = 0;
@@ -119,7 +119,7 @@
 
     b) Modificar el código para que funcione para C consumidores y P productores.
 
-    ```plaintext
+    ```java
         int cant = 0;
         int pri_ocupada = 0;
         int pri_vacia = 0;
@@ -140,4 +140,4 @@
                 consume elemento 
             } 
         }
-        ```
+    ```
