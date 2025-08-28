@@ -117,7 +117,7 @@
     }
     ```
 
-    b) Modificar el código para que funcione para C consumidores y P productores.
+    b) Modificar el código para que funcione para C consumidores y P productores. [^2]
 
     ```java
         int cant = 0;
@@ -142,4 +142,5 @@
         }
     ```
 
-    [^1] En este caso se debe proteger el buffer en la posición pri_vacia ya que otro proceso puede estar utilizandola.
+    [^1]: En este caso se debe proteger el buffer en la posición pri_vacia y pre_ocupada ya que otro proceso puede estar utilizandola.
+    [^2]: En este caso se debe proteger la asignacion de pri_vacia y pre_ocupada que que otro proceso puede estar calculandola.
