@@ -47,9 +47,9 @@
             10- Store Reg Acum, Pos Mem x
     ```
 
-    >a: 56 Si con la historia P1~1~, P1~2~, P1~3~, P2~1~, P2~2~, P2~3~, P3~1~, P3~2~, P3~3~, P3~4~, P3~5~, P3~6~, P3~7~, P3~8~, P3~9~, P3~10~
-    >b: 22 Si con la historia P3~1~, P3~2~, P3~3~, P1~1~, P1~2~, P1~3~,P3~4~, P3~5~, P3~6~, P3~7~, P3~8~, P3~9~, P3~10~, P2~1~, P2~2~, P2~3~
-    >c: 23 Si con la historia P3~1~, P3~2~, P3~3~, P1~1~, P1~2~, P1~3~, P2~1~, P2~2~, P2~3~, P3~4~, P3~5~, P3~6~, P3~7~, P3~8~, P3~9~, P3~10~
+    >a: 56 Si con la historia P1<sub>1</sub> P1<sub>2</sub> P1<sub>3</sub> P2<sub>1</sub> P2<sub>2</sub> P2<sub>3</sub> P3<sub>1</sub> P3<sub>2</sub> P3<sub>3</sub> P3<sub>4</sub> P3<sub>5</sub> P3<sub>6</sub> P3<sub>7</sub> P3<sub>8</sub> P3<sub>9</sub> P3<sub>10</sub>
+    >b: 22 Si con la historia P3<sub>1</sub> P3<sub>2</sub> P3<sub>3</sub> P1<sub>1</sub> P1<sub>2</sub> P1<sub>3</sub>P3<sub>4</sub> P3<sub>5</sub> P3<sub>6</sub> P3<sub>7</sub> P3<sub>8</sub> P3<sub>9</sub> P3<sub>10</sub> P2<sub>1</sub> P2<sub>2</sub> P2<sub>3</sub>
+    >c: 23 Si con la historia P3<sub>1</sub> P3<sub>2</sub> P3<sub>3</sub> P1<sub>1</sub> P1<sub>2</sub> P1<sub>3</sub> P2<sub>1</sub> P2<sub>2</sub> P2<sub>3</sub> P3<sub>4</sub> P3<sub>5</sub> P3<sub>6</sub> P3<sub>7</sub> P3<sub>8</sub> P3<sub>9</sub> P3<sub>10</sub>
 
 2. Realice una solución concurrente de grano grueso (utilizando <> y/o <await B; S>) para el siguiente problema. Dado un número N verifique cuántas veces aparece ese número en un arreglo de longitud M. Escriba las pre-condiciones que considere necesarias.
 
