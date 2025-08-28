@@ -92,7 +92,7 @@
     }
     ```
 
-    Modificación:
+    Modificación[^1]:
 
     ```java
     int cant = 0;
@@ -141,3 +141,5 @@
             } 
         }
     ```
+
+    [^1] En este caso se debe proteger el buffer en la posición pri_vacia ya que otro proceso puede estar utilizandola.
