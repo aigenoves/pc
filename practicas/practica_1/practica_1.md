@@ -55,6 +55,8 @@
 
 2. Realice una solución concurrente de grano grueso (utilizando <> y/o <await B; S>) para el siguiente problema. Dado un número N verifique cuántas veces aparece ese número en un arreglo de longitud M. Escriba las pre-condiciones que considere necesarias.
 
+    Solución 1 con M procesos: [^1]
+
     ```java
     integer N := ...
     integer x := 0
@@ -64,6 +66,30 @@
         if arreglo[id] == N {
             <x:=x+1>
         }
+    }
+    ```
+
+    Solución 2 con 10 procesos: [^2]
+
+    Precondicones: arreglo de 1000 y 10 procesos contar
+
+   ```java
+    integer N := ...
+    integer x := 0
+    arreglo [1000]
+    integer bloque := 1000 div 10
+
+    process Contar[id:0..9] {
+        integer inicio := id*bloque
+        integer fin := (id+1) * bloque - 1
+        contador := 0
+        for i = inicio..fin {
+            if arreglo[i] == N {
+                contador := contador + 1
+            }
+        }
+        // SC
+        <x:=x+contador>
     }
     ```
 
@@ -94,7 +120,7 @@
     }
     ```
 
-    Modificación[^1]:
+    Modificación[^3]:
 
     ```java
     int cant = 0;
@@ -119,7 +145,7 @@
     }
     ```
 
-    b) Modificar el código para que funcione para C consumidores y P productores. [^2]
+    b) Modificar el código para que funcione para C consumidores y P productores. [^4]
 
     ```java
         int cant = 0;
@@ -144,5 +170,10 @@
         }
     ```
 
-    [^1]: En este caso se debe proteger el buffer en la posición pri_vacia y pre_ocupada ya que otro proceso puede estar utilizandola.
-    [^2]: En este caso se debe proteger la asignacion de pri_vacia y pre_ocupada que que otro proceso puede estar calculandola.
+    [^1]: Esta solución es correcta pero podemos pensarla con una cantidad finita de procesos Contar.
+
+    [^2]: Esta solución es para una cantidad de 1000 elementos del arreglo y una cantidad de 10 prcesos Contar. Se peude generalizar.
+
+    [^3]: En este caso se debe proteger el buffer en la posición pri_vacia y pre_ocupada ya que otro proceso puede estar utilizandola.
+
+    [^4]: En este caso se debe proteger la asignacion de pri_vacia y pre_ocupada que que otro proceso puede estar calculandola.
