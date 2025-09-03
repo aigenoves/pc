@@ -177,3 +177,78 @@
     [^3]: En este caso se debe proteger el buffer en la posición pri_vacia y pre_ocupada ya que otro proceso puede estar utilizandola.
 
     [^4]: En este caso se debe proteger la asignacion de pri_vacia y pre_ocupada que que otro proceso puede estar calculandola.
+
+4. Resolver con SENTENCIAS AWAIT (<> y <await B; S>). Un sistema operativo mantiene 5  instancias de un recurso almacenadas en una cola, cuando un proceso necesita usar una instancia del recurso la saca de la cola, la usa y cuando termina de usarla la vuelve a depositar.
+
+    ```java
+        colaRecursos colaRec[5];
+        int cant = 0;
+                
+        Process So[i:0..P-1]::  
+        Recurso recurso;
+        { while (true) 
+            {  
+                <await (cant < 5); cant++ 
+                recurso = colaRec.pop();>
+                // Utilizo el recurso
+                <colaRec.push(recurso);
+                cant--;>
+            } 
+        } 
+    ```
+
+5. En cada ítem debe realizar una solución concurrente de grano grueso (utilizando <> y/o <await B; S>) para el siguiente problema, teniendo en cuenta las condiciones indicadas en el item. Existen N personas que deben imprimir un trabajo cada una.
+
+   a. Implemente una solución suponiendo que existe una única impresora compartida por todas las personas, y las mismas la deben usar de a una persona a la vez, sin importar el orden. Existe una función Imprimir(documento) llamada por la persona que simula el uso de la impresora. Sólo se deben usar los procesos que representan a las Personas.
+
+    ```java
+        Process Persona[id: 0..N-1]::
+        {
+            Documento doc;
+            <Imprimir(doc);>
+        } 
+    ```
+
+   b. Modifique la solución de (a) para el caso en que se deba respetar el orden de llegada.
+
+    ```java
+        int numero = 0;
+        int proximo = 0;
+        array[0..N-1]  ordenLlegada = -1 // Aca quiero representar que asigno -1 a todas las pos.
+        
+        Process Persona[id: 0..N-1]::
+        {
+            Documento doc;
+            <ordenLlegada = numero; numero++;> 
+            <await turno[i] == proximo>
+            Imprimir(doc); // Creo que no necesito que sea de grano grueso
+            proximo++; // porque como proximo no aumenta hasta el final entonces no avanza.
+        } 
+    ```
+
+   c. Modifique la solución de (a) para el caso en que se deba respetar el orden dado por el identificador del proceso (cuando está libre la impresora, de los procesos que han solicitado su uso la debe usar el que tenga menor identificador).
+
+    ```java
+
+        colaOrdenada Espera;
+        int siguiente = -1;
+        Process Persona[id: 0..N-1]::
+        {
+            Documento doc;
+            <if siguiente == -1 { // Nadie esta usando la impresora para que me voy a agregar. La uso.
+                siguiente = id;
+            } else {
+                agregar(Espera, id); // La estan usando me agrego en la cola.
+            }>
+            <await siguiente == id;> // Espero a que me toque
+            Imprimir(doc);
+            
+            <if empty(Espera) { // Si esta  vacia es porque soy el ultimo que la uso. Reinicio el contador.
+                siguiente = -1;
+            } else {
+                siguiente = sacar(Espera) // No soy el último, le digo al siguiente que es su turno.
+            }>
+        } 
+    ```
+
+   d. Modifique la solución de (b) para el caso en que además hay un proceso Coordinador que le indica a cada persona que es su turno de usar la impresora.
