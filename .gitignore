@@ -1,0 +1,36 @@
+# Archivos de compresion
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+*.tgz
+*.zst
+*.lzma
+
+# Archivos de audio
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.m4a
+*.wma
+*.aiff
+*.alac
+
+# Archivos de video
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mpg
+*.mpeg
+*.3gp
+*.m4v
