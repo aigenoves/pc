@@ -45,3 +45,24 @@ process colab [id: 0..3] {
 }
 
 ```
+
+Esta es una solucnion con un poco de semantica de colas
+
+```java
+   sem mutex=1; colaFallos colaF=([N] Fallo); array cantFallos = ([4], 0)
+
+   process Contador[id: 0..3]{
+      colaFallos cola_local;
+      Fallo fallo;
+      P(mutex);
+      cola_local = colaF.clone(); // asumo que hace una copia sin apuntar a la original.
+      V(mutex);
+
+      while (!cola_local.isEmpty()) {
+          fallo = cola_local.pop();
+          if (fallo.getErrorLevel()==id) {
+              cantFallos[id]++;
+          }
+      }
+   }
+```
