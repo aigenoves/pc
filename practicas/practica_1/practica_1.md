@@ -252,3 +252,27 @@
     ```
 
    d. Modifique la solución de (b) para el caso en que además hay un proceso Coordinador que le indica a cada persona que es su turno de usar la impresora.
+
+6. Consultar para mi cumple las 4 solo hay que verificar si puede interpretarse como demora innecesaria en el while
+
+7. Desarrolle una solución de grano fino usando sólo variables compartidas (no se puede usar las sentencias await ni funciones especiales como TS o FA). En base a lo visto en la clase 3 de teoría, resuelva el problema de acceso a sección crítica usando un proceso coordinador. En este caso, cuando un proceso SC[i] quiere entrar a su sección crítica le avisa al coordinador, y espera a que éste le dé permiso. Al terminar de ejecutar su sección crítica, el proceso SC[i] le avisa al coordinador. Nota: puede basarse en la solución para implementar barreras con “Flags y coordinador” vista en la teoría 3.
+
+   ```java
+   int ejecutando = -1;
+   boolean listo = false;
+
+   process sc[id: 0..N-1]{
+    while (ejecutando <> id) skip;
+    SC
+    listo = true;
+   }
+   
+   process coordinador{
+    for i = 0..N-1 {
+        ejecutando = i;
+        while(not listo) skip;
+        listo = false;
+    }
+   }
+
+   ```
