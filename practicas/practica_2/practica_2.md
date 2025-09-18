@@ -116,7 +116,43 @@
 4. No es una solución del todo correcta, supongamos que entran 4 procesos de prioridad alta, esto deja a la cantidad de usuarios totales en 2 (6-4), por lo tanto si llegan otros dos procesos de prioridad alta antes de procesos de prioridad baja (que hasta ahora no llego ninguno) y suponiendo que los 4 proceso de prioridad alta estan en ls SC por mucho tiempo, los 2 procesos nuevos de prioridad alta estarian esperando que se haga V(alta) dejando fura de posibilidad el uso de la base de datos por usuarios de prioridad baja.
 
 5. En  una  empresa  de  logística  de  paquetes  existe  una  sala  de contenedores  donde  se preparan las entregas. Cada contenedor puede almacenar un paquete y la sala cuenta con capacidad para N contenedores. Resuelva considerando las siguientes situaciones:  
-a) La empresa cuenta con 2 empleados:  un empleado Preparador que se ocupa de preparar  los  paquetes  y  dejarlos  en  los contenedores;  un  empelado  Entregador que  se  ocupa  de  tomar  los  paquetes  de  los  contenedores  y  realizar  la  entregas. Tanto el Preparador como el Entregador trabajan de a un paquete por vez.  
+
+   a. La empresa cuenta con 2 empleados:  un empleado Preparador que se ocupa de preparar  los  paquetes  y  dejarlos  en  los contenedores;  un  empelado  Entregador que  se  ocupa  de  tomar  los  paquetes  de  los  contenedores  y  realizar  la  entregas. Tanto el Preparador como el Entregador trabajan de a un paquete por vez.  
+  
+  ```java
+  Array contenedores[5] = [(5) 0]; // N=5
+  int posLibre = 0;
+  int posOcupada = 0;
+  sem cantContenedores = 5;
+  sem cantOcupados = 0;
+
+  Process Preparador {
+    while(true){
+      Paquete paq;
+      // prepara paquete
+      P(cantContenedores);
+        contenedores[posLibre] = paquete;
+        posLibre = (posLibre + 1) MOD 5;
+      V(cantOcupados);
+
+    }
+
+  }
+
+  Process Entregador {
+    while(true){
+      Paquete paq;
+      P(cantOcupados);
+        paq = contenedores[posOcupada];
+        posOcupada = (posOcupada + 1) MOD 5;
+      V(CantContenedores);
+      // Entregar Paquete
+    }
+    
+  }
+
+  ```
+
 b) Modifique la solución a) para el caso en que haya P empleados Preparadores.  
 c) Modifique la solución a) para el caso en que haya E empleados Entregadores.  
 d) Modifique la solución a) para el caso en que haya P empleados Preparadores y E empleadores Entregadores.  
