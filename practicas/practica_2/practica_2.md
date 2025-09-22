@@ -90,28 +90,32 @@
     V(cantProcDisp)
 
    } 
-   ```
-
-   ```java
-   cola colaR = ([5] Recurso)
-   sem mutex = 1
-
-   process Proceso[id:0..P]{
-    Recurso actual;
-    P(mutex) 
-    if (colaR.notEmpty()) {
-      actual = colaR.pop() 
-      V(Mutex)
-         // Processa el recurso 
-      P(Mutex) 
-         colaR.push(actual)
-      V(Mutex) 
-    }
-    else {
-      V(mutex) 
-    }
-   } 
   ```
+
+  **Esta solución no va**
+
+  ```java
+  cola colaR = ([5] Recurso)
+  sem mutex = 1
+
+  process Proceso[id:0..P]{
+   Recurso actual;
+   P(mutex) 
+   if (colaR.notEmpty()) {
+    actual = colaR.pop() 
+    V(Mutex)
+      // Processa el recurso 
+    P(Mutex) 
+      colaR.push(actual)
+    V(Mutex) 
+   }
+   else {
+    V(mutex) 
+   }
+  } 
+  ```
+
+
 
 4. No es una solución del todo correcta, supongamos que entran 4 procesos de prioridad alta, esto deja a la cantidad de usuarios totales en 2 (6-4), por lo tanto si llegan otros dos procesos de prioridad alta antes de procesos de prioridad baja (que hasta ahora no llego ninguno) y suponiendo que los 4 proceso de prioridad alta estan en ls SC por mucho tiempo, los 2 procesos nuevos de prioridad alta estarian esperando que se haga V(alta) dejando fura de posibilidad el uso de la base de datos por usuarios de prioridad baja.
 
