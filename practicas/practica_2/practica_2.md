@@ -92,31 +92,6 @@
    } 
   ```
 
-  **Esta solución no va**
-
-  ```java
-  cola colaR = ([5] Recurso)
-  sem mutex = 1
-
-  process Proceso[id:0..P]{
-   Recurso actual;
-   P(mutex) 
-   if (colaR.notEmpty()) {
-    actual = colaR.pop() 
-    V(Mutex)
-      // Processa el recurso 
-    P(Mutex) 
-      colaR.push(actual)
-    V(Mutex) 
-   }
-   else {
-    V(mutex) 
-   }
-  } 
-  ```
-
-
-
 4. No es una solución del todo correcta, supongamos que entran 4 procesos de prioridad alta, esto deja a la cantidad de usuarios totales en 2 (6-4), por lo tanto si llegan otros dos procesos de prioridad alta antes de procesos de prioridad baja (que hasta ahora no llego ninguno) y suponiendo que los 4 proceso de prioridad alta estan en ls SC por mucho tiempo, los 2 procesos nuevos de prioridad alta estarian esperando que se haga V(alta) dejando fura de posibilidad el uso de la base de datos por usuarios de prioridad baja.
 
 5. En  una  empresa  de  logística  de  paquetes  existe  una  sala  de contenedores  donde  se preparan las entregas. Cada contenedor puede almacenar un paquete y la sala cuenta con capacidad para N contenedores. Resuelva considerando las siguientes situaciones:  
@@ -127,17 +102,17 @@
   Array contenedores[5] = [(5) 0]; // N=5
   int posLibre = 0;
   int posOcupada = 0;
-  sem cantContenedores = 5;
-  sem cantOcupados = 0;
+  sem cantContLibres = 5;
+  sem cantContOcupados = 0;
 
   Process Preparador {
     while(true){
       Paquete paq;
       // prepara paquete
-      P(cantContenedores);
+      P(cantContLibres);
         contenedores[posLibre] = paquete;
         posLibre = (posLibre + 1) MOD 5;
-      V(cantOcupados);
+      V(cantContOcupados);
 
     }
 
@@ -146,10 +121,10 @@
   Process Entregador {
     while(true){
       Paquete paq;
-      P(cantOcupados);
+      P(cantContOcupados);
         paq = contenedores[posOcupada];
         posOcupada = (posOcupada + 1) MOD 5;
-      V(CantContenedores);
+      V(CantContLibres);
       // Entregar Paquete
     }
     
@@ -158,5 +133,117 @@
   ```
 
 b) Modifique la solución a) para el caso en que haya P empleados Preparadores.  
+
+  ```java
+  Array contenedores[5] = [(5) 0]; // N=5
+  int posLibre = 0;
+  int posOcupada = 0;
+  sem cantContLibres = 5;
+  sem cantContOcupados = 0;
+  sem puedeDepositar = 1;
+
+  Process Preparador[id: 0 .. P-1] {
+    while(true){
+      Paquete paq;
+      // prepara paquete
+      P(cantContLibres);
+      P(puedeDepositar)
+        contenedores[posLibre] = paquete;
+        posLibre = (posLibre + 1) MOD 5;
+      V(puedeDepositar)
+      V(cantContOcupados);
+
+    }
+
+  }
+
+  Process Entregador {
+    while(true){
+      Paquete paq;
+      P(cantContOcupados);
+        paq = contenedores[posOcupada];
+        posOcupada = (posOcupada + 1) MOD 5;
+      V(cantContLibres);
+      // Entregar Paquete
+    }
+    
+  }
+
+  ```
+
 c) Modifique la solución a) para el caso en que haya E empleados Entregadores.  
+
+  ```java
+  Array contenedores[5] = [(5) 0]; // N=5
+  int posLibre = 0;
+  int posOcupada = 0;
+  sem cantContLibres = 5;
+  sem cantContOcupados = 0;
+  sem puedeRetirar = 1;
+
+  Process Preparador {
+    while(true){
+      Paquete paq;
+      // prepara paquete
+      P(cantContLibres);
+        contenedores[posLibre] = paquete;
+        posLibre = (posLibre + 1) MOD 5;
+      V(cantContOcupados);
+
+    }
+
+  }
+
+  Process Entregador {
+    while(true){
+      Paquete paq;
+      P(cantContOcupados);
+      P(puedeRetirar)
+        paq = contenedores[posOcupada];
+        posOcupada = (posOcupada + 1) MOD 5;
+      V(puedeRetirar)
+      V(cantContLibres);
+      // Entregar Paquete
+    }
+    
+  }
+
+  ```
+
 d) Modifique la solución a) para el caso en que haya P empleados Preparadores y E empleadores Entregadores.  
+
+  ```java
+  Array contenedores[5] = [(5) 0]; // N=5
+  int posLibre = 0;
+  int posOcupada = 0;
+  sem cantContLibres = 5;
+  sem cantContOcupados = 0;
+  sem puedeDepositar = 1;
+  sem puedeRetirar = 1;
+
+  Process Preparador[id: 0 .. P-1] {
+    while(true){
+      Paquete paq;
+      // prepara paquete
+      P(cantContLibres);
+      P(puedeDepositar)
+        contenedores[posLibre] = paquete;
+        posLibre = (posLibre + 1) MOD 5;
+      V(puedeDepositar)
+      V(cantContOcupados);
+
+    }
+  }
+
+  Process Entregador {
+    while(true){
+      Paquete paq;
+      P(cantContOcupados);
+      P(puedeRetirar)
+        paq = contenedores[posOcupada];
+        posOcupada = (posOcupada + 1) MOD 5;
+      V(puedeRetirar)
+      V(cantContLibres);
+      // Entregar Paquete
+    }
+  }
