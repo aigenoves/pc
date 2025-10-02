@@ -1,123 +1,83 @@
-Este resumen abarca los conceptos fundamentales de Variables Compartidas, los desafíos de la concurrencia, y las soluciones algorítmicas clave presentadas en las fuentes, incluyendo Sentencias `await`, Semáforos y Monitores.
+# Conceptos Clave y Algoritmos de Concurrencia
+---
+
+## Variables Compartidas
+
+El concepto central al trabajar con Variables Compartidas (VC) es la **sincronización** para prevenir la **interferencia** y asegurar la **atomicidad** en las operaciones.
+
+1.  **Atomicidad y Exclusión Mutua (EM):**
+    *   Una operación atómica realiza una transformación de estado que es indivisible e invisible a otros procesos. Las operaciones simples (lectura/escritura de tipos básicos) suelen ser atómicas a nivel de *grano fino*.
+    *   Sin embargo, operaciones comunes como el incremento de un contador (`x = x + 1`) no son atómicas a nivel de grano fino y deben protegerse.
+    *   La **Exclusión Mutua** (EM) es una propiedad de seguridad que garantiza que **a lo sumo un proceso** está accediendo a la *Sección Crítica* (SC) en un momento dado, asegurando estados consistentes.
+
+2.  **La Sentencia `await` de Grano Grueso:**
+    *   El mecanismo fundamental para lograr la sincronización con variables compartidas es la sentencia `await`.
+    *   **Forma general:** `<await (B) S;>`: el proceso se demora hasta que la condición $B$ es verdadera, momento en el que ejecuta la secuencia de sentencias $S$ de forma **atómica**.
+    *   **Sincronización por Condición:** El `await` se utiliza para bloquear un proceso hasta que se cumpla una condición específica ($B$).
+    *   **Uso de `< >`:** La notación de corchetes angulares (`<sentencias>`) define una **acción atómica de grano grueso** (coarse-grained). Es vital usarla cuando se accede o modifica variables compartidas cuyas operaciones no son atómicas por sí mismas, como las que componen los contadores.
+    *   **Maximización de Concurrencia:** Siempre que sea posible, se deben utilizar **variables locales** para evitar el uso de la atomicidad de grano grueso (`< >`), lo cual reduce la concurrencia.
+
+3.  **Ordenamiento y Administración de Acceso:**
+    *   Las soluciones simples de EM con `await` (como la protección de un *lock* booleano) generalmente no garantizan el orden de llegada (FIFO) de los procesos en espera.
+    *   Para implementar **sincronización secuencial estricta** o **administración de acceso ordenado** (como en los algoritmos Ticket, o con colas ordenadas), se deben introducir variables de estado compartidas (como `Actual` o `Siguiente`, o `Numero`/`Turno` en Ticket) que dictan explícitamente qué proceso tiene permiso para avanzar.
 
 ---
 
-## Resumen de la Clase de Variables Compartidas
+## Semáforos
 
-El tema de Variables Compartidas aborda los problemas de concurrencia que surgen cuando múltiples procesos acceden y modifican datos simultáneamente.
+Los semáforos son una herramienta de sincronización de **más alto nivel** que buscan simplificar los protocolos de concurrencia y evitar el **busy waiting** ineficiente asociado con soluciones puramente basadas en variables compartidas.
 
-### 1. Las Bases de la Concurrencia y la Interferencia
+1.  **Definición y Operaciones:**
+    *   Un semáforo es un entero no negativo con dos operaciones atómicas: **P** y **V**.
+    *   **P(s):** Se utiliza para **demorar** un proceso hasta que ocurra un evento (espera a que $s > 0$ y luego lo decrementa). Si el semáforo es 0, el proceso se bloquea (se duerme).
+    *   **V(s):** Se utiliza para **señalar** la ocurrencia de un evento (incrementa $s$). Si hay procesos bloqueados en $P(s)$, uno de ellos es despertado.
 
-Cuando se ejecuta un programa concurrente, las sentencias de alto nivel que modifican una variable compartida (como `x = x + y;`) no son atómicas a nivel de grano fino. Estas se descomponen en múltiples acciones atómicas básicas: **Cargar** el valor de la memoria a un registro, **Sumar/Modificar** en el registro acumulador, y **Almacenar** el resultado de vuelta en la posición de memoria.
+2.  **Implementación de Exclusión Mutua (EM):**
+    *   Un **semáforo binario** (inicialmente 1) se utiliza para proteger la SC.
+    *   $P(mutex)$ actúa como protocolo de entrada a la SC, y $V(mutex)$ como protocolo de salida.
 
-**El Problema:** El sistema operativo puede interrumpir un proceso y cambiar el contexto entre cualquiera de estas acciones atómicas. Las diferentes secuencias de ejecución (llamadas "historias") resultan en posibles valores finales distintos para la variable compartida, lo que se conoce como una condición de carrera o interferencia.
+3.  **Maximización de Concurrencia (SC mínima):**
+    *   Es un concepto crítico que la **Sección Crítica** (el código entre $P$ y $V$) debe ser lo más pequeña posible. Debe incluir **solo** aquellas operaciones que requieren acceso exclusivo al recurso compartido o a las variables de estado que dictan la sincronización. Las tareas individuales no concurrentes deben quedar fuera del par $P/V$.
 
-**Ejemplo 1: Análisis de Historias**
-Dado `int x = 1;`, `Process A { x = x + 5; }`, y `Process B { x = x + 3; }`.
+4.  **Tipos de Uso para Sincronización:**
+    *   **Contadores de Recursos (Semáforos Generales):** El valor del semáforo cuenta el número de unidades libres de un recurso. Es común en problemas Productor/Consumidor para contar espacios vacíos y ocupados.
+    *   **Señalización de Eventos:** Los semáforos inicializados en 0 se usan para que un proceso espere un evento ($P(s)$) y otro lo señale ($V(s)$).
+    *   **Semáforos Privados:** Semáforos donde exactamente un proceso ejecuta la operación $P$. Son esenciales para la comunicación uno a uno (como devolver resultados a clientes específicos en el Problema Productor/Consumidor o Alocación de Recursos).
+    *   **Passing the Baton:** Técnica que utiliza Semáforos Binarios Divididos o privados para controlar de manera precisa el orden en que los procesos son despertados, útil para implementar sincronizaciones condicionales complejas y resolver problemas de *scheduling* y prioridad.
 
-| Acción | Descripción de Grano Fino | Proceso |
-| :---: | :---: | :---: |
-| 1 | Load Pos Memoria x, Reg Acumulador | A |
-| 2 | Add Pos Memoria y (5), Reg Acumulador | A |
-| 3 | Store Reg Acumulador, Pos Memoria x | A |
-| 4 | Load Pos Memoria x, Reg Acumulador | B |
-| 5 | Add Pos Memoria z (3), Reg Acumulador | B |
-| 6 | Store Reg Acumulador, Pos Memoria x | B |
+5.  **Barreras:**
+    *   Una barrera es un punto de sincronización donde todos los procesos deben llegar antes de que cualquiera pueda continuar. Se implementan usando contadores compartidos (para saber cuántos han llegado) y semáforos de señalización (para despertar a todos simultáneamente).
 
-Si las acciones se ejecutan en orden secuencial (1-2-3-4-5-6 o 4-5-6-1-2-3), el resultado final de $x$ es **9**.
-Sin embargo, si las acciones se entrelazan, el resultado puede ser inconsistente. Por ejemplo, en la historia **1-2-4-5-3-6**, el resultado de $x$ es **4**. Este comportamiento no deseado es la razón por la que se necesita sincronización y exclusión mutua.
+---
 
-### 2. Algoritmos y Mecanismos de Sincronización
+## Monitores
 
-Para evitar la interferencia, se utilizan mecanismos que garantizan que las secciones críticas (SC) que acceden a variables compartidas se ejecuten con **Exclusión Mutua (EM)**. Siempre que sea posible, se deben usar **variables locales** a cada proceso para evitar el uso de mecanismos de sincronización (como `<>`), que pueden reducir la concurrencia.
+Los monitores son una construcción de lenguaje de programación de muy **alto nivel** que encapsulan los datos compartidos y los procedimientos que operan sobre ellos, proporcionando **Exclusión Mutua implícita**.
 
-#### A. Soluciones de Grano Grueso con Sentencias `await`
+1.  **Exclusión Mutua Implícita:**
+    *   La EM es automática: solo un proceso puede estar ejecutando dentro de un procedimiento del monitor en un momento dado. Esto elimina la necesidad de primitivas de bloqueo explícitas ($P/V$ o *locks*).
+    *   El monitor solo se libera si el proceso termina el procedimiento o si el proceso se **bloquea** en una variable de condición.
 
-Las sentencias `await` permiten definir secciones de código que se ejecutan de manera atómica, logrando exclusión mutua y/o sincronización por condición.
+2.  **Variables de Condición (`cond vc`):**
+    *   La sincronización por condición se maneja explícitamente mediante variables `condition` declaradas dentro del monitor.
+    *   **`wait(vc)`:** El proceso se duerme en la cola asociada a `vc` y cede el monitor.
+    *   **`signal(vc)`:** Despierta al **primer** (más antiguo) proceso dormido en esa cola, el cual pasa a competir para reingresar al monitor.
+    *   **`signal_all(vc)`:** Despierta a todos los procesos dormidos en la cola.
 
-1.  **Forma General para Exclusión Mutua:**
-    `< sentencias >`
-    *   **Explicación:** El proceso ejecuta las sentencias de forma atómica. **Solo un proceso a la vez** puede estar ejecutando esa Sección Crítica (SC). Los procesos que esperan acceder a la SC no lo hacen por orden de llegada, sino que compiten una vez que se libera.
-    *   **Ejemplo de Exclusión Mutua:** Para garantizar que el incremento de la variable compartida `Total` en el Ejemplo 2 sea atómico, se usa: `<Total = Total + 1>;`.
+3.  **El Rol del Monitor (Administrador vs. Recurso):**
+    *   Para maximizar la concurrencia, el monitor generalmente debe actuar como un **administrador** del acceso al recurso (RC) compartido, no como el RC en sí. El trabajo intensivo debe realizarse fuera del monitor.
+    *   Por ejemplo, en un cajero, el monitor administra el turno (`Pasar()` y `Salir()`), pero el proceso realiza la función `UsarCajero()` fuera del monitor.
 
-2.  **Forma General para Sincronización por Condición y EM:**
-    `< await (B); sentencias >`
-    *   **Explicación:** El proceso se detiene hasta que la condición $B$ es verdadera, momento en el cual ejecuta las `sentencias` de forma atómica. La atomicidad asegura que no hay posibilidad de que alguien modifique $B$ entre el momento en que se encuentra verdadera y la ejecución de las sentencias.
-    *   **Ejemplo de Sincronización por Condición (Ejemplo 3 - Examen):** Para asegurar que un `Process Alumno` espere a ser llamado, se usa una variable compartida `Actual` y la sentencia: `<await (Actual == id)>;`.
+4.  **Administración de Acceso y Prioridad:**
+    *   Si se requiere respetar un orden estricto (FIFO) o una **prioridad** (Ej. 3), no basta con una sola variable de condición. El orden de la cola interna del `wait/signal` es FIFO, pero el `signal` despierta al proceso que luego debe competir para reingresar.
+    *   Para asegurar un orden específico (como FIFO o prioridad), se suelen usar:
+        *   **Variables de Condición Privadas:** Se usa un arreglo de variables de condición (`espera[N]`) para despertar a un proceso *en particular* (por su ID).
+        *   **Estructuras de Datos Auxiliares:** Se emplea una cola compartida (ej. `colaOrdenada` o `fila`) dentro del monitor para almacenar los IDs de los procesos en el orden deseado (prioridad, llegada, etc.).
 
-#### B. Semáforos
-
-Los Semáforos son un mecanismo de sincronización que debe inicializarse en la declaración (ej: `sem mutex = 1;`).
-
-1.  **Operaciones Básicas:**
-    *   **P(s):** Es atómico. Equivalente a `< await (s > 0) s = s-1; >`. El proceso se demora hasta que el semáforo `s` es mayor que cero, y luego lo decrementa.
-    *   **V(s):** Es atómico. Equivalente a `< s = s+1; >`. Incrementa el semáforo `s`, despertando potencialmente a un proceso bloqueado.
-
-2.  **Uso para Exclusión Mutua (Mutex):**
-    *   **Explicación:** Un semáforo binario inicializado en 1 (`sem mutex = 1;`) se usa para proteger la SC. El proceso ejecuta `P(mutex)` al inicio de la SC y `V(mutex)` al final. Si un proceso intenta entrar a la SC mientras otro la ocupa, se bloquea en `P(mutex)`.
-    *   **Ejemplo (Maximización de Concurrencia):** En el Ejemplo 1 (caramelos), la SC solo debe proteger el acceso al recurso compartido (tomar caramelo e incrementar `cant`), dejando las acciones no críticas (comer caramelo) fuera, entre `V(mutex)` y la siguiente iteración, para maximizar la concurrencia.
-        ```
-        Process Chico[id: 0..C-1] {
-            while (true) {
-                P(mutex);
-                -- tomar caramelo
-                cant = cant + 1;
-                V(mutex);
-                -- comer caramelo
-            }
-        }
-        ```
-
-3.  **Uso para Sincronización (Contador de Recursos):**
-    *   **Explicación:** Un semáforo inicializado en 0 o en el número de recursos disponibles se usa para señalizar eventos o contar recursos.
-    *   **Ejemplo (Productor/Consumidor - Ejemplo 4):** Para que el `Process Servidor` espere hasta que haya un pedido en la cola, se usa un semáforo contador `pedidos = 0;`. El `Cliente` (productor) avisa con `V(pedidos)` después de encolar, y el `Servidor` (consumidor) se demora con `P(pedidos)` antes de intentar sacar.
-
-#### C. Monitores
-
-Los Monitores son estructuras de alto nivel diseñadas para la sincronización, que encapsulan variables permanentes y procedimientos.
-
-1.  **Características Clave:**
-    *   **No existen variables compartidas** fuera del monitor.
-    *   **Exclusión Mutua (EM):** Es **implícita**. Solo se permite un proceso ejecutando dentro de un monitor a la vez. El monitor se libera solo cuando el procedimiento termina o el proceso se duerme en una variable condición.
-    *   **Acceso:** Los procesos compiten por acceder al monitor; **NO acceden de acuerdo al orden de llegada** cuando el monitor está libre.
-
-2.  **Sincronización por Condición:**
-    Se utilizan variables `cond` (variables condition) declaradas dentro del monitor.
-    *   **`wait (vc)`:** Duerme al proceso en la cola asociada a la variable condición `vc`.
-    *   **`signal (vc)`:** Despierta al primer proceso dormido en `vc` para que compita por reingresar al monitor.
-    *   **`signal_all (vc)`:** Despierta a todos los procesos dormidos en `vc` para que compitan por reingresar.
-
-3.  **Ejemplo (Administración de Acceso con Orden - Cajero Ejemplo 2):**
-    Cuando el monitor necesita respetar un orden (Ejemplo: orden de llegada al cajero), el monitor debe **administrar** el acceso en lugar de representar directamente el recurso.
-    *   Para implementar el orden, se necesita una variable booleana (`libre`) y una variable condition para la espera (`cola`). Además, se necesita contar cuántos procesos están esperando (`int esperando`) porque la función `empty()` no se puede usar en variables condition.
-
-    *Código Simplificado del Monitor Cajero (que respeta el orden usando `esperando`):*
-    ```
-    Monitor Cajero{
-        bool libre = true;
-        cond cola;
-        int esperando = 0;
-
-        Procedure Pasar () {
-            if (not libre) {
-                esperando ++;
-                wait (cola);
-            }
-            else libre = false;
-        }
-
-        Procedure Salir () {
-            if (esperando > 0 ) {
-                esperando --;
-                signal (cola);
-            }
-            else libre = true;
-        }
-    }
-    ```
-    El proceso `Persona` llama a `Pasar()` (solicita acceso), ejecuta `UsarCajero()` (fuera del monitor), y luego llama a `Salir()` (libera el recurso).
-
-
+5.  **Técnicas Avanzadas:**
+    *   **Passing the Condition (o *Counted Waiting*):** Se utiliza una variable compartida (como `cantLibres` o `esperando`) para llevar la cuenta de los recursos disponibles o los procesos en espera, en lugar de depender únicamente del estado de la cola de condición. Esto permite al proceso que está saliendo determinar explícitamente si debe despertar a alguien o si puede simplemente liberar el recurso. Es clave en la administración de empleados (Ej. 4 - Banco).
+    *   **Prevención de DEADLOCK:** En interacciones cliente/empleado (Ej. 4 - Escritorio), la comunicación punto a punto debe manejar la llegada asíncrona de las partes. Se deben utilizar **variables de estado booleanas** (`listo`) para evitar que un proceso que llega antes que el otro ejecute un `signal` que se pierde, resultando en un *deadlock* cuando el segundo proceso llega e intenta hacer un `wait`.
+    *   **Re-chequeo de Condiciones:** Cuando hay múltiples procesos que compiten por un recurso (Ej. 7: 2 Servidores), si un servidor es despertado por `signal`, debe re-chequear la condición (ej. `while (empty(C)) wait (HayPedido);`) para asegurarse de que el recurso no fue consumido por otro servidor antes de que pudiera acceder al monitor.
 # Algoritmos
 
 
