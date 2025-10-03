@@ -34,7 +34,7 @@ process Concursante[id: 0..C]{
     } else {
         V(mutex);
         V(barrera);
-        for (i = 1; iC) {
+        for (i = 0; i < C-1; i++) {
             V(espera)
         }
     }
