@@ -58,8 +58,6 @@ process Verificacion(){
         // verificando vehiculo
         V(salir[v.id]);
     }
-    
-
 }
 
 ```

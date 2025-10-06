@@ -4,7 +4,6 @@ Una empresa de turismo posee **UN** micro con capacidad para 50 personas. Hay un
 
 Solución:
 
-
 ```java
 sem mutex = 1; //Administro el acceso a la cola Clientes
 sem hay_cliente = 0; // Semaforo que controla que el Vendedor puede atender a un cliente.
@@ -14,8 +13,7 @@ sem vendidos[C] = ([C] 0); //Semaforo privado que le dice al cliente si se le ve
 int pasaje[C] = ([C] 0); // Semáforo que indica que, para el cliente en su posición, pudo comprar o no pasajes.
 queue Clientes; // Cola de clientes que necesitan pasajes.
 
-
-process Cliente(id:0..C){
+process Cliente(id:0..C-1){
 	P(mutex); //Voy a usar la sección crítica
 	push(Clientes, id); // Me agrego a la cola
 	V(mutex) // Salgo de la sección crítica.
