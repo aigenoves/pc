@@ -14,7 +14,3 @@ En esta documentación encontrarás los resúmenes que realice en base a los vid
 - [Pasaje de Mensajes Asincrónicos (PMA)](memoria_distribuida/pma.md)
 
 ---
-
-## Introducción
-
-Este proyecto tiene como objetivo...
