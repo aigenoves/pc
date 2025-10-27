@@ -73,6 +73,7 @@ Variantes para los canales:
 - ***Monitores (MC)*** &rarr; Es una continuación, por el lado de MC, de semáforos que brinda una herramienta de mayor abstracción. Nos permiten resolver, de manera implícita, la exclusión mutua y ,de manera explícita, resolver la exclusión por condición
 
 *Terminar*
+
 - ***PMA*** &rarr; Tiene una forma de sincronzar parecida a la que tienen los semáforos. Un proceso que necesita recibir una información, a través de un cierto canal, se va a quedar esperando hasta que en ese canal haya al menos un mensaje. Es el P de los semáforos
 - ***PMS*** &rarr; Es el V de los semáforos
 - ***RPC*** &rarr;
